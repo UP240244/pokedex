@@ -1,6 +1,6 @@
 import PokemonCard from "@/components/PokemonCard";
 import { useEffect, useState } from "react";
-import { ScrollView } from "react-native";
+import { ScrollView, TextInput } from "react-native";
 
 interface Pokemon {
   name: string;
@@ -9,6 +9,8 @@ interface Pokemon {
 
 export default function Index() {
   const [results, setResults] = useState<Pokemon[]>([]);
+  const [text, setText] = useState("");
+  const [allResults, setAllResults] = useState<Pokemon[]>([]);
   useEffect(() => {
     console.log("Entre en pantalla");
     getPokemons();
@@ -23,6 +25,7 @@ export default function Index() {
       if (response.ok) {
         const data = await response.json();
         setResults(data.results);
+        setAllResults(data.results);
       } else {
         console.log("Bard Request");
       }
@@ -31,8 +34,26 @@ export default function Index() {
     }
   };
 
+  const filterPokemon = (text: string) => {
+    const t = text.trim().toLowerCase();
+    const arrayFiltered = allResults.filter((p) =>
+      p.name.toLowerCase().includes(t),
+    );
+    setResults(arrayFiltered);
+  };
+
+  const handleChangeText = (text: string) => {
+    setText(text);
+    filterPokemon(text);
+  };
+
   return (
     <ScrollView>
+      <TextInput
+        placeholder="Buscar..."
+        value={text}
+        onChangeText={handleChangeText}
+      />
       {results.map((item) => {
         return (
           <PokemonCard
